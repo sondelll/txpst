@@ -2,6 +2,7 @@ FROM docker.io/golang:1.24-bookworm AS build
 
 WORKDIR /app
 
+RUN mkdir build
 RUN wget -P ./build https://github.com/typst/typst/releases/download/v0.12.0/typst-x86_64-unknown-linux-musl.tar.xz
 RUN cd build && tar -xJf ./typst-x86_64-unknown-linux-musl.tar.xz
 RUN cp build/typst-x86_64-unknown-linux-musl/typst typst
