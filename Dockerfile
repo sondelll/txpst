@@ -1,4 +1,4 @@
-FROM docker.io/ubuntu.latest as tbuild
+FROM docker.io/ubuntu:latest as tbuild
 
 WORKDIR /app
 
