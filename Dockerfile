@@ -4,9 +4,9 @@ WORKDIR /app
 
 RUN apt-get -y update; apt-get -y install wget xz-utils
 
-RUN wget https://github.com/typst/typst/releases/download/v0.12.0/typst-x86_64-unknown-linux-musl.tar.xz
+RUN wget https://github.com/typst/typst/releases/download/v0.12.0/typst-aarch64-unknown-linux-musl.tar.xz
 
-RUN tar -xJf /app/typst-x86_64-unknown-linux-musl.tar.xz
+RUN tar -xJf /app/typst-aarch64-unknown-linux-musl.tar.xz
 
 
 FROM docker.io/golang:1.24-bookworm AS build
@@ -22,7 +22,7 @@ FROM docker.io/alpine:latest
 WORKDIR /app
 
 COPY --from=build /app/txpst /usr/bin/txpst
-COPY --from=tbuild /app/typst-x86_64-unknown-linux-musl/typst /usr/bin/typst
+COPY --from=tbuild /app/typst-aarch64-unknown-linux-musl/typst /usr/bin/typst
 
 COPY ./build/typst /usr/bin/typst
 COPY ./typ/doc.typ /app/doc.typ
