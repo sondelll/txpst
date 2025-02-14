@@ -1,8 +1,6 @@
-FROM docker.io/ubuntu:latest as tbuild
+FROM docker.io/debian:bookworm as tbuild
 
 WORKDIR /app
-
-RUN apt -q install curl
 
 RUN curl -fSsl https://github.com/typst/typst/releases/download/v0.12.0/typst-x86_64-unknown-linux-musl.tar.xz
 RUN tar -xf /app/typst-x86_64-unknown-linux-musl.tar.xz
