@@ -1,6 +1,10 @@
-FROM docker.io/golang:1.23.6-alpine3.21 AS build
+FROM docker.io/golang:1.24-bookworm AS build
 
 WORKDIR /app
+
+RUN wget -P ./build https://github.com/typst/typst/releases/download/v0.12.0/typst-x86_64-unknown-linux-musl.tar.xz
+RUN cd build && tar -xJf ./typst-x86_64-unknown-linux-musl.tar.xz
+RUN cp build/typst-x86_64-unknown-linux-musl/typst typst
 
 COPY server .
 
@@ -11,6 +15,7 @@ FROM docker.io/alpine:latest
 WORKDIR /app
 
 COPY --from=build /app/txpst /usr/bin/txpst
+COPY --from=build /app/typst /usr/bin/typst
 
 COPY ./build/typst /usr/bin/typst
 COPY ./typ/doc.typ /app/doc.typ
