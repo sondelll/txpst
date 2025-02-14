@@ -3,7 +3,7 @@ FROM docker.io/ubuntu.latest as tbuild
 WORKDIR /app
 
 RUN wget https://github.com/typst/typst/releases/download/v0.12.0/typst-x86_64-unknown-linux-musl.tar.xz
-RUN tar -xf typst-x86_64-unknown-linux-musl.tar.xz
+RUN tar -xf /app/typst-x86_64-unknown-linux-musl.tar.xz
 
 
 FROM docker.io/golang:1.24-bookworm AS build
