@@ -1,11 +1,12 @@
-FROM docker.io/ubuntu:latest as tbuild
+FROM docker.io/ubuntu:latest AS tbuild
 
 WORKDIR /app
 
-RUN apt-get -y update; apt-get -y install curl
+RUN apt-get -y update; apt-get -y install wget xz-utils
 
-RUN curl -fSsl https://github.com/typst/typst/releases/download/v0.12.0/typst-x86_64-unknown-linux-musl.tar.xz
-RUN tar -xf /app/typst-x86_64-unknown-linux-musl.tar.xz
+RUN wget https://github.com/typst/typst/releases/download/v0.12.0/typst-x86_64-unknown-linux-musl.tar.xz
+
+RUN tar -xJf /app/typst-x86_64-unknown-linux-musl.tar.xz
 
 
 FROM docker.io/golang:1.24-bookworm AS build
