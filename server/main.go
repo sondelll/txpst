@@ -12,8 +12,8 @@ import (
 func main() {
 	app := fiber.New(fiber.Config{DisableStartupMessage: true})
 	app.Post("/", run)
-
-	app.Listen(":8787")
+	addr := ":" + os.Getenv("PORT")
+	app.Listen(addr)
 }
 
 func run(c *fiber.Ctx) error {
