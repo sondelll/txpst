@@ -2,9 +2,7 @@ FROM docker.io/ubuntu:latest as tbuild
 
 WORKDIR /app
 
-RUN apt-get -q install wget
-
-RUN wget https://github.com/typst/typst/releases/download/v0.12.0/typst-x86_64-unknown-linux-musl.tar.xz
+RUN curl -fSsl https://github.com/typst/typst/releases/download/v0.12.0/typst-x86_64-unknown-linux-musl.tar.xz
 RUN tar -xf /app/typst-x86_64-unknown-linux-musl.tar.xz
 
 
