@@ -9,26 +9,24 @@ RUN wget https://github.com/typst/typst/releases/download/v0.12.0/typst-aarch64-
 RUN tar -xJf /app/typst-aarch64-unknown-linux-musl.tar.xz
 
 
-FROM docker.io/golang:1.24-bookworm AS build
+FROM docker.io/golang:1.24-bookworm
 
-WORKDIR /app
+COPY --from=tbuild /app/typst-aarch64-unknown-linux-musl/typst /usr/bin/typst
+
+WORKDIR /app/build
 
 COPY server .
 
-RUN go build -o ./txpst .
-
-FROM docker.io/alpine:latest
-
-WORKDIR /app
-
-COPY --from=build /app/txpst /usr/bin/txpst
-COPY --from=tbuild /app/typst-aarch64-unknown-linux-musl/typst /usr/bin/typst
-
-COPY ./build/typst /usr/bin/typst
 COPY ./typ/doc.typ /app/doc.typ
 COPY ./typ/template.typ /app/template.typ
 COPY ./ostp_black.svg /app/ostp_black.svg
 
+RUN go build -o ./txpst .
+
+RUN mv ./txpst /usr/bin/txpst
+
 COPY ./Arial.ttf /usr/fonts/Arial.ttf
+
+WORKDIR /app
 
 ENTRYPOINT [ "txpst" ]
