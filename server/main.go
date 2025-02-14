@@ -17,6 +17,10 @@ func main() {
 }
 
 func run(c *fiber.Ctx) error {
+	auth := c.Get("Authorization")
+	if auth != "1f7f1a" {
+		return c.SendStatus(403)
+	}
 	b := c.Body()
 	os.Remove("/app/data.json")
 	f, err := os.Create("/app/data.json")
