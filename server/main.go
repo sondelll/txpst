@@ -49,6 +49,7 @@ func run(c *fiber.Ctx) error {
 	if waitErr := cmd.Wait(); waitErr != nil {
 		log.Error("failed to wait for typst..?", "err", waitErr.Error())
 	}
+	os.Remove("/app/data.json")
 	return readBack(c)
 }
 
