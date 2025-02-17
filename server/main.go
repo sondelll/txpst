@@ -36,7 +36,7 @@ func run(c *fiber.Ctx) error {
 		time.Sleep(time.Millisecond * 25)
 	}
 
-	cmd := exec.Command("typst", "compile", "--font-path", "/usr/fonts", "/app/doc.typ", "/app/out.pdf")
+	cmd := exec.Command("typst", "compile", "--font-path=/usr/fonts", "/app/doc.typ", "/app/out.pdf")
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
