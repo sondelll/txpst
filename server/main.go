@@ -2,19 +2,19 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/idempotency"
 	"github.com/sondelll/txstp/server/internal/txputil"
 )
 
 func main() {
 	app := fiber.New(fiber.Config{DisableStartupMessage: true})
-	idem := app.Use(idempotency.New(idempotency.ConfigDefault))
-	idem.Post("/cert", certHandler)
+
+	app.Post("/cert", certHandler)
 	app.Get("/example", exampleHandler)
 	//app.Post("/example", exampleHandler)
 	addr := ":" + os.Getenv("PORT")
@@ -22,16 +22,18 @@ func main() {
 }
 
 func exampleHandler(c *fiber.Ctx) error {
-	if err := txputil.PlaceAll(c); err != nil {
+	wd := txputil.NewWorkdir()
+	if err := txputil.PlaceAll(c, wd); err != nil {
 		return c.SendStatus(500)
 	}
 
-	outBuf, compileErr := compile("/app/example.typ")
+	outBuf, compileErr := compile("/app/example.typ", wd)
 
 	if compileErr != nil {
 		return c.SendStatus(500)
 	}
-	txputil.ClearAll()
+
+	txputil.ClearAll(wd)
 
 	return readBack(c, outBuf)
 }
@@ -41,26 +43,35 @@ func certHandler(c *fiber.Ctx) error {
 	if auth != "1f7f1a" {
 		return c.SendStatus(401)
 	}
+	wd := txputil.NewWorkdir()
 
-	if err := txputil.PlaceAll(c); err != nil {
+	if err := txputil.PlaceAll(c, wd); err != nil {
 		return c.SendStatus(500)
 	}
-
-	out, compileErr := compile("/app/doc.typ")
+	out, compileErr := compile("/app/doc.typ", wd)
 	if compileErr != nil {
 		return c.SendStatus(500)
 	}
-
-	txputil.ClearAll()
+	workedDir := fmt.Sprintf("./.%s", wd)
+	txputil.ClearAll(workedDir)
 
 	return readBack(c, out)
 }
 
-func compile(fp string) (*bytes.Buffer, error) {
-	cmd := exec.Command("typst", "compile", "--font-path=/usr/fonts", fp, "-")
+func compile(fp string, id string) (*bytes.Buffer, error) {
+	rootArg := fmt.Sprintf("--root=./%s", id)
+	typFileContent, tfcErr := os.ReadFile(fp)
+	if tfcErr != nil {
+		return nil, tfcErr
+	}
+
+	cmd := exec.Command("typst", "compile", "--font-path=/usr/fonts", rootArg, "-", "-")
 
 	outBuf := bytes.NewBuffer([]byte{})
 	cmd.Stdout = outBuf
+	inBuf := bytes.NewBuffer([]byte{})
+	inBuf.Write(typFileContent)
+	cmd.Stdin = inBuf
 	cmd.Stderr = os.Stderr
 
 	startErr := cmd.Start()

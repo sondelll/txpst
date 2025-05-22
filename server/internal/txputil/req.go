@@ -5,12 +5,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func PlaceAll(c *fiber.Ctx) error {
-	if err := PlaceContext(c); err != nil {
+func PlaceAll(c *fiber.Ctx, id string) error {
+	if err := PlaceContext(c, id); err != nil {
 		log.Error("Context failure", "err", err)
 		return err
 	}
-	if err := PlaceUserData(c); err != nil {
+	if err := PlaceUserData(c, id); err != nil {
 		log.Error("User data failure", "err", err)
 		return err
 	}
