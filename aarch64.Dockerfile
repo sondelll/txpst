@@ -11,7 +11,7 @@ RUN tar -xJf /app/typst-aarch64-unknown-linux-musl.tar.xz
 
 
 # Build the server
-FROM docker.io/golang:1.23-bookworm AS build
+FROM docker.io/golang:1.24-bookworm AS build
 
 WORKDIR /app
 
