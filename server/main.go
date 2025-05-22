@@ -15,7 +15,7 @@ import (
 
 func main() {
 	app := fiber.New(fiber.Config{DisableStartupMessage: true})
-	app.Use(limiter.New(limiter.Config{Max: 6, Expiration: time.Second * 10}))
+	app.Use(limiter.New(limiter.Config{Max: 6, Expiration: time.Second * 30}))
 
 	app.Post("/cert", certHandler)
 	app.Get("/example", exampleHandler)
