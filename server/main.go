@@ -7,12 +7,14 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/idempotency"
 	"github.com/sondelll/txstp/server/internal/txputil"
 )
 
 func main() {
 	app := fiber.New(fiber.Config{DisableStartupMessage: true})
-	app.Post("/cert", certHandler)
+	idem := app.Use(idempotency.ConfigDefault)
+	idem.Post("/cert", certHandler)
 	app.Get("/example", exampleHandler)
 	//app.Post("/example", exampleHandler)
 	addr := ":" + os.Getenv("PORT")
@@ -29,7 +31,7 @@ func exampleHandler(c *fiber.Ctx) error {
 	if compileErr != nil {
 		return c.SendStatus(500)
 	}
-	defer txputil.ClearAll()
+	txputil.ClearAll()
 
 	return readBack(c, outBuf)
 }
@@ -49,7 +51,7 @@ func certHandler(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 
-	defer txputil.ClearAll()
+	txputil.ClearAll()
 
 	return readBack(c, out)
 }
