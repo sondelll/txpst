@@ -5,14 +5,17 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/sondelll/txstp/server/internal/txputil"
 )
 
 func main() {
 	app := fiber.New(fiber.Config{DisableStartupMessage: true})
+	app.Use(limiter.New(limiter.Config{Max: 6, Expiration: time.Second * 10}))
 
 	app.Post("/cert", certHandler)
 	app.Get("/example", exampleHandler)
