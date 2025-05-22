@@ -13,7 +13,7 @@ import (
 
 func main() {
 	app := fiber.New(fiber.Config{DisableStartupMessage: true})
-	idem := app.Use(idempotency.ConfigDefault)
+	idem := app.Use(idempotency.New(idempotency.ConfigDefault))
 	idem.Post("/cert", certHandler)
 	app.Get("/example", exampleHandler)
 	//app.Post("/example", exampleHandler)
