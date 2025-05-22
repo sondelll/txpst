@@ -4,41 +4,58 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
-	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
+	"github.com/sondelll/txstp/server/internal/txputil"
 )
 
 func main() {
 	app := fiber.New(fiber.Config{DisableStartupMessage: true})
-	app.Post("/", run)
+	app.Post("/cert", certHandler)
+	app.Get("/example", exampleHandler)
+	//app.Post("/example", exampleHandler)
 	addr := ":" + os.Getenv("PORT")
 	app.Listen(addr)
 }
 
-func run(c *fiber.Ctx) error {
+func exampleHandler(c *fiber.Ctx) error {
+	if err := txputil.PlaceAll(c); err != nil {
+		return c.SendStatus(500)
+	}
+
+	outBuf, compileErr := compile("/app/example.typ")
+
+	if compileErr != nil {
+		return c.SendStatus(500)
+	}
+	defer txputil.ClearAll()
+
+	return readBack(c, outBuf)
+}
+
+func certHandler(c *fiber.Ctx) error {
 	auth := c.Get("Authorization")
 	if auth != "1f7f1a" {
-		return c.SendStatus(403)
-	}
-	b := c.Body()
-
-	os.Remove("/app/data.json")
-	f, err := os.Create("/app/data.json")
-	if err != nil {
-		log.Error("failed to create file", "err", err.Error())
-		return c.SendStatus(500)
-	}
-	_, writeErr := f.Write(b)
-	if writeErr != nil {
-		log.Error("failed to write file", "err", writeErr.Error())
-		return c.SendStatus(500)
-	} else {
-		time.Sleep(time.Millisecond * 25)
+		return c.SendStatus(401)
 	}
 
-	cmd := exec.Command("typst", "compile", "--font-path=/usr/fonts", "/app/doc.typ", "-")
+	if err := txputil.PlaceAll(c); err != nil {
+		return c.SendStatus(500)
+	}
+
+	out, compileErr := compile("/app/doc.typ")
+	if compileErr != nil {
+		return c.SendStatus(500)
+	}
+
+	defer txputil.ClearAll()
+
+	return readBack(c, out)
+}
+
+func compile(fp string) (*bytes.Buffer, error) {
+	cmd := exec.Command("typst", "compile", "--font-path=/usr/fonts", fp, "-")
 
 	outBuf := bytes.NewBuffer([]byte{})
 	cmd.Stdout = outBuf
@@ -47,14 +64,14 @@ func run(c *fiber.Ctx) error {
 	startErr := cmd.Start()
 	if startErr != nil {
 		log.Error("failed to start typst", "err", startErr.Error())
-		return c.SendStatus(500)
+		return nil, startErr
 	}
 
 	if waitErr := cmd.Wait(); waitErr != nil {
 		log.Error("failed to wait for typst..?", "err", waitErr.Error())
+		return nil, waitErr
 	}
-
-	return readBack(c, outBuf)
+	return outBuf, nil
 }
 
 func readBack(c *fiber.Ctx, outBuffer *bytes.Buffer) error {
