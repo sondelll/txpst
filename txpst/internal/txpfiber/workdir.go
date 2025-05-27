@@ -1,4 +1,4 @@
-package txputil
+package txpfiber
 
 import (
 	"fmt"

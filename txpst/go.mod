@@ -1,4 +1,4 @@
-module github.com/sondelll/txstp/server
+module github.com/sondelll/txstp/txpst
 
 go 1.24.3
 

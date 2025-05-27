@@ -15,27 +15,25 @@ FROM docker.io/golang:1.24-bookworm AS build
 
 WORKDIR /app
 
-COPY server .
+COPY txpst .
 
-RUN go build -o ./txpst .
+RUN go build -o ./txpst-server ./app/txpst
 
 # Prep for running
 FROM docker.io/debian:bookworm-20250428-slim
 
 COPY --from=tbuild /app/typst-x86_64-unknown-linux-musl/typst /usr/bin/typst
-COPY --from=build /app/txpst /usr/bin/txpst
-
-WORKDIR /usr/fonts
-
-COPY ./fonts/* ./
-
+COPY --from=build /app/txpst-server /usr/bin/txpst-server
 
 WORKDIR /app
 
-COPY ./typ/doc.typ /app/doc.typ
-COPY ./typ/template.typ /app/template.typ
-COPY ./ostp_black.svg /app/ostp_black.svg
+#COPY ./typ/doc.typ /app/doc.typ
+#COPY ./typ/template.typ /app/template.typ
+#COPY ./ostp_black.svg /app/ostp_black.svg
 
-COPY ./typ/example.typ /app/example.typ
+#COPY ./typ/example.typ /app/example.typ
 
-ENTRYPOINT [ "txpst" ]
+VOLUME [ "/typ" ]
+VOLUME [ "/fonts" ]
+
+ENTRYPOINT [ "txpst-server" ]
