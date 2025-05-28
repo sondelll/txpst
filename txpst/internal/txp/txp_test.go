@@ -14,6 +14,7 @@ func TestNew(t *testing.T) {
 	tx, initErr := New()
 	if initErr != nil {
 		t.Logf("If typst is not installed, this is still correct. Error: %s", initErr.Error())
+		t.SkipNow()
 	}
 	t.Logf("Version detected: %s", tx.DetectedVersion)
 }
