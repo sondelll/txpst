@@ -26,7 +26,7 @@ func HandleCompile(c *fiber.Ctx) error {
 		log.Error("Failed to populate for request.", "err", err)
 		return c.SendStatus(500)
 	}
-	b, err := compileWithDir(wd)
+	b, err := compileWithDir(wd, reqFormat)
 
 	if err != nil {
 		log.Error("Failed on compile", "err", err)

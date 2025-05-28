@@ -9,7 +9,7 @@ import (
 	"github.com/sondelll/txstp/txpst/internal/txp"
 )
 
-func compileWithDir(dirName string) ([]byte, error) {
+func compileWithDir(dirName string, format string) ([]byte, error) {
 	mainFileName := path.Join(dirName, "main.typ")
 	typFileContent, tfcErr := os.ReadFile(mainFileName)
 	if tfcErr != nil {
@@ -19,7 +19,7 @@ func compileWithDir(dirName string) ([]byte, error) {
 	if txErr != nil {
 		return nil, txErr
 	}
-	result, cErr := tx.Compile(typFileContent, dirName, "pdf")
+	result, cErr := tx.Compile(typFileContent, dirName, format)
 	if cErr != nil {
 		return nil, cErr
 	}
